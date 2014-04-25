@@ -7,7 +7,7 @@ public class PlayerController : MonoBehaviour
 	public bool facingRight = true;  //是否面朝右边
 	[HideInInspector]
 	public bool jump = false;  //能否条约
-	public bool run = false;
+	public bool kick = false;
 	public float moveForce = 365f;  //移动给的力
 	public float maxSpeed = 5f;  //最大移动速度
 	public AudioClip[] jumpClips; //跳跃时候的声音
@@ -17,6 +17,11 @@ public class PlayerController : MonoBehaviour
 	private bool grounded = false; //是否着地
 	private Animator anim; //引用角色动画
 
+	private float timeSinceLastKick = 0f;
+	private bool isKeepPress = false;
+
+	private AnimatorStateInfo stateInfo;
+
 	// Use this for initialization
 	void Start () 
 	{
@@ -25,24 +30,26 @@ public class PlayerController : MonoBehaviour
 
 	void Awake()
 	{
-		//groundCheck = transform.Find("groundCheck");
+		groundCheck = transform.Find("groundCheck");
 		anim = GetComponent<Animator>();
+		stateInfo = anim.GetCurrentAnimatorStateInfo(0);
 	}
 	
 	// Update is called once per frame
 	void Update () 
 	{
-//		grounded = Physics2D.Linecast(transform.position,groundCheck.position,1 << LayerMask.NameToLayer("Ground"));
-
-		if (Input.GetButtonDown ("Jump"))// && grounded)
+		grounded = Physics2D.Linecast(transform.position,groundCheck.position,1 << LayerMask.NameToLayer("Ground"));
+		print ("ground" + grounded);
+		if (Input.GetButtonDown ("PGJump") && grounded)
 					jump = true;
-		if (Input.GetButtonDown ("Fire1"))// && grounded)
-			run = true;
-	}
+		if (Input.GetButtonDown ("PGKick"))// && grounded)
+		{
+			kick = true;
+		}
+		if (anim.GetInteger ("Kick") != 0)
+			anim.SetInteger ("Kick", 0);
 
-	void FixedUpdate()
-	{
-		float h = Input.GetAxis ("Horizontal");
+		float h = Input.GetAxis ("PGHorizontal");
 		anim.SetFloat ("Speed", Mathf.Abs (h));
 
 		if (h * rigidbody2D.velocity.x < maxSpeed)
@@ -55,20 +62,35 @@ public class PlayerController : MonoBehaviour
 			Flip ();
 		if (jump)
 		{
-			anim.SetTrigger("AttackKick");
+			anim.SetTrigger("Jump");
 //			anim.Play("PGRedAttackKick");
 			rigidbody2D.AddForce(new Vector2(0f,jumpForce));
 			jump = false;
 		}
-		if (run)
-		{
-			anim.SetTrigger("Run");
-			//			anim.Play("PGRedAttackKick");
-//			rigidbody2D.AddForce(new Vector2(0f,jumpForce));
-			run = false;
+		if (kick)
+		{	
+			timeSinceLastKick = Time.time - timeSinceLastKick;
+			Debug.Log("okok:"+timeSinceLastKick);
+			if (timeSinceLastKick < 0.5 && timeSinceLastKick > 0)
+			{
+				isKeepPress = true;
+			}
+			if (isKeepPress)
+			{
+				print("keepkick");
+				anim.SetInteger("Kick",2);
+				isKeepPress = false;
+			}
+			else
+			{
+				print("kick");
+				anim.SetInteger("Kick",1);
+			}
+			timeSinceLastKick = Time.time;
+			kick = false;
 		}
 	}
-
+	
 	void Flip()
 	{
 		facingRight = !facingRight;
