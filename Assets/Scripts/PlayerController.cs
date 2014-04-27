@@ -31,6 +31,7 @@ public class PlayerController : MonoBehaviour
 	void Awake()
 	{
 		groundCheck = transform.Find("groundCheck");
+
 		anim = GetComponent<Animator>();
 		stateInfo = anim.GetCurrentAnimatorStateInfo(0);
 	}
@@ -38,8 +39,10 @@ public class PlayerController : MonoBehaviour
 	// Update is called once per frame
 	void Update () 
 	{
+		print("position:"+transform.position);
+		print("groundCheck:"+groundCheck.position);
 		grounded = Physics2D.Linecast(transform.position,groundCheck.position,1 << LayerMask.NameToLayer("Ground"));
-		print ("ground" + grounded);
+//		print ("ground" + grounded);
 		if (Input.GetButtonDown ("PGJump") && grounded)
 					jump = true;
 		if (Input.GetButtonDown ("PGKick"))// && grounded)
