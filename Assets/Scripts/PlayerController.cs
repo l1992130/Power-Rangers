@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
 	[HideInInspector]
 	public bool jump = false;  //能否条约
 	public bool kick = false;
+	public bool sit = false;
 	public float moveForce = 365f;  //移动给的力
 	public float maxSpeed = 5f;  //最大移动速度
 	public AudioClip[] jumpClips; //跳跃时候的声音
@@ -39,8 +40,8 @@ public class PlayerController : MonoBehaviour
 	// Update is called once per frame
 	void Update () 
 	{
-		print("position:"+transform.position);
-		print("groundCheck:"+groundCheck.position);
+//		print("position:"+transform.position);
+//		print("groundCheck:"+groundCheck.position);
 		grounded = Physics2D.Linecast(transform.position,groundCheck.position,1 << LayerMask.NameToLayer("Ground"));
 //		print ("ground" + grounded);
 		if (Input.GetButtonDown ("PGJump") && grounded)
@@ -49,6 +50,11 @@ public class PlayerController : MonoBehaviour
 		{
 			kick = true;
 		}
+		if (Input.GetKey(KeyCode.S))
+			sit = true;
+		if (Input.GetKeyUp (KeyCode.S))
+						sit = false;
+		print ("Sit:"+sit);
 		if (anim.GetInteger ("Kick") != 0)
 			anim.SetInteger ("Kick", 0);
 
@@ -91,6 +97,14 @@ public class PlayerController : MonoBehaviour
 			}
 			timeSinceLastKick = Time.time;
 			kick = false;
+		}
+		if (sit) 
+		{
+			anim.SetBool("Sit",true);
+		}
+		else
+		{
+			anim.SetBool("Sit",false);
 		}
 	}
 	
