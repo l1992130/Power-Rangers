@@ -18,6 +18,7 @@ public class PlayerController : MonoBehaviour
 	private Transform groundCheck; //玩家着地位置
 	private bool grounded = false; //是否着地
 	private Animator anim; //引用角色动画
+	SpriteRenderer sr;
 
 	//腿部攻击相关参数
 	private float timeSinceLastKick = 0f;
@@ -41,12 +42,16 @@ public class PlayerController : MonoBehaviour
 		groundCheck = transform.Find("groundCheck");
 
 		anim = GetComponent<Animator>();
+		BoxCollider2D box = GetComponent<BoxCollider2D>();
+//		box.size = new Vector2 (0.3f,1);
+		sr = GetComponent<SpriteRenderer> ();
 
 	}
 	
 	// Update is called once per frame
 	void Update () 
 	{
+		//print ("size:"+sr.sprite.bounds.size);
 		stateInfo = anim.GetCurrentAnimatorStateInfo(0);
 		//跳
 		grounded = Physics2D.Linecast(transform.position,groundCheck.position,1 << LayerMask.NameToLayer("Ground"));
@@ -81,9 +86,16 @@ public class PlayerController : MonoBehaviour
 			anim.SetInteger ("Boxing", 0);
 
 		//除了跳和正常跑，其余速度降低
-		if (getButton("PGHorizontal") && !stateInfo.IsName ("PGRedRun") && !stateInfo.IsName("PGRedJump"))
+//		if (getButton("PGHorizontal") && !stateInfo.IsName ("PGRun") && !stateInfo.IsName("PGJump"))
+//			maxSpeed = 0.1f;
+//		if (stateInfo.IsName("PGRun"))
+//			maxSpeed = 2f;
+
+		if (stateInfo.IsName ("PGRunPunch") || stateInfo.IsName ("PGBackKick") || stateInfo.IsName ("PGBoxing") || stateInfo.IsName ("PGKeepBoxing")
+		    || stateInfo.IsName ("PGAttackKick") || stateInfo.IsName ("PGKeepKick")
+		    ) 
 			maxSpeed = 0.1f;
-		if (stateInfo.IsName("PGRedRun"))
+		else 
 			maxSpeed = 2f;
 
 		//左右跑动
