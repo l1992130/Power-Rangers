@@ -10,6 +10,8 @@ public class PlayerController : MonoBehaviour
 	public bool kick = false;
 	public bool sit = false;
 	public bool boxing = false;
+	public bool sword = false;
+
 	public float moveForce = 365f;  //移动给的力
 	public float maxSpeed = 2f;  //最大移动速度
 	public AudioClip[] jumpClips; //跳跃时候的声音
@@ -25,12 +27,16 @@ public class PlayerController : MonoBehaviour
 	private bool isKickKeepPress = false;
 
 	//下蹲系列动作相关
-
 	private AnimatorStateInfo stateInfo;
 
 	//手部攻击相关参数
 	private float timeSinceLastBoxing = 0f;
 	private bool isBoxingKeepPress = false;
+
+	private float timeSinceLastPress = 0f;
+	private bool isKeepPress = false;
+	private int curSkill = 1;
+
 	// Use this for initialization
 	void Start () 
 	{
@@ -55,6 +61,10 @@ public class PlayerController : MonoBehaviour
 		stateInfo = anim.GetCurrentAnimatorStateInfo(0);
 		//跳
 		grounded = Physics2D.Linecast(transform.position,groundCheck.position,1 << LayerMask.NameToLayer("Ground"));
+		if (grounded)
+			anim.SetBool("Grounded",true);
+		else
+			anim.SetBool("Grounded",false);
 		if (Input.GetButtonDown("PGJump") && grounded) 
 		{
 			print("jumpbutton"+ Time.time);
@@ -84,7 +94,11 @@ public class PlayerController : MonoBehaviour
 		}
 		if (anim.GetInteger ("Boxing") != 0)
 			anim.SetInteger ("Boxing", 0);
-
+		//挥剑//
+		if (Input.GetButtonDown ("PGSword"))
+						sword = true;	
+		if (anim.GetInteger ("Sword") != 0)
+			anim.SetInteger ("Sword", 0);
 		//除了跳和正常跑，其余速度降低
 //		if (getButton("PGHorizontal") && !stateInfo.IsName ("PGRun") && !stateInfo.IsName("PGJump"))
 //			maxSpeed = 0.1f;
@@ -114,6 +128,7 @@ public class PlayerController : MonoBehaviour
 
 	void FixedUpdate()
 	{
+		stateInfo = anim.GetCurrentAnimatorStateInfo(0);
 		if (jump)
 		{
 			anim.SetTrigger("Jump");
@@ -151,31 +166,39 @@ public class PlayerController : MonoBehaviour
 		}
 		if (boxing)
 		{	
-			timeSinceLastBoxing = Time.time - timeSinceLastBoxing;
-			Debug.Log("okok:"+timeSinceLastBoxing);
-			if (timeSinceLastBoxing < 0.5 && timeSinceLastBoxing > 0)
-			{
-				isBoxingKeepPress = true;
-			}
-			if (isBoxingKeepPress)
-			{
-				anim.SetInteger("Boxing",2);
-				isBoxingKeepPress = false;
-			}
-			else
-			{
-				anim.SetInteger("Boxing",1);
-			}
-			timeSinceLastBoxing = Time.time;
+			isKeepPressing("Boxing",2);
 			boxing = false;
 		}
-//		if (boxing)
-//		{
-//			anim.SetInteger("Boxing",1);
-//			boxing = false;
-//		}
-//		else
-//			anim.SetInteger("Boxing",0);
+		if (sword)
+		{
+			isKeepPressing("Sword",2);
+			sword = false;
+		}
+	}
+
+	void isKeepPressing(string animName,int skillCount)
+	{
+		timeSinceLastPress = Time.time - timeSinceLastPress;
+		if (timeSinceLastPress < 0.5 && timeSinceLastPress > 0)
+		{
+			isKeepPress = true;
+		}
+		if (isKeepPress)
+		{
+			if(curSkill < skillCount)
+				curSkill++;
+			else
+				curSkill = 1;
+			anim.SetInteger(animName,curSkill);
+			isKeepPress = false;
+		}
+		else
+		{
+			anim.SetInteger(animName,1);
+			curSkill = 1;
+		}
+		timeSinceLastPress = Time.time;
+		boxing = false;
 	}
 
 	void Flip()
