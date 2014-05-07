@@ -1,12 +1,19 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\PlayerController.cs">
     <Files>
-      <File FileName="Assets\Scripts\PlayerController.cs" Line="40" Column="42" />
-      <File FileName="Assets\Scripts\ComboTest.cs" Line="1" Column="19" />
-      <File FileName="Assets\Scripts\BackgroundParallax.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\CameraFollow.cs" Line="9" Column="20" />
-      <File FileName="Assets\Scripts\ScreenReltaivePosition.cs" Line="10" Column="2" />
+      <File FileName="..\..\2D Platformer\Assets\Scripts\Score.cs" Line="1" Column="1" />
+      <File FileName="..\..\2D Platformer\Assets\Scripts\PlayerControl.cs" Line="1" Column="1" />
+      <File FileName="..\..\2D Platformer\Assets\Scripts\Gun.cs" Line="1" Column="1" />
+      <File FileName="..\..\2D Platformer\Assets\Scripts\Destroyer.cs" Line="1" Column="1" />
+      <File FileName="..\..\2D Platformer\Assets\Scripts\Remover.cs" Line="1" Column="1" />
+      <File FileName="..\..\2D Platformer\Assets\Scripts\SetParticleSortingLayer.cs" Line="1" Column="1" />
+      <File FileName="..\..\2D Platformer\Assets\Scripts\ScoreShadow.cs" Line="1" Column="1" />
+      <File FileName="..\..\2D Platformer\Assets\Scripts\PlayerHealth.cs" Line="1" Column="1" />
+      <File FileName="..\..\2D Platformer\Assets\Scripts\Enemy.cs" Line="1" Column="1" />
+      <File FileName="..\..\2D Platformer\Assets\Scripts\Rocket.cs" Line="1" Column="1" />
+      <File FileName="..\..\2D Platformer\Assets\Scripts\Spawner.cs" Line="6" Column="73" />
+      <File FileName="Assets\Scripts\PlayerController.cs" Line="117" Column="31" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

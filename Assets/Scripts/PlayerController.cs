@@ -21,50 +21,47 @@ public class PlayerController : MonoBehaviour
 	private static readonly string JumpWallPrm = "JumpWall";
 	private static readonly string SwordPrm = "Sword";
 	private static readonly string GroundedPrm = "Grounded";
+	private static readonly string GroundedSwordPrm = "GroundedSword";
 
 	[HideInInspector]
 	public bool facingRight = true;  //是否面朝右边
 	[HideInInspector]
-	public bool jump = false;  //能否条约
-	public bool kick = false;
-	public bool sit = false;
-	public bool boxing = false;
-	public bool sword = false;
+	public bool jump = false;  //能否跳跃
+	[HideInInspector]
+	public bool kick = false;  //踢腿
+	[HideInInspector]
+	public bool sit = false;  //下蹲
+	[HideInInspector]
+	public bool boxing = false;  //打拳
+	[HideInInspector]
+	public bool sword = false;  //挥剑
 
 	public float moveForce = 365f;  //移动给的力
 	public float maxSpeed = 2f;  //最大移动速度
-	public AudioClip[] jumpClips; //跳跃时候的声音
-	public float jumpForce = 1000f; //跳跃时候的力度
+	public AudioClip[] jumpClips;  //跳跃时候的声音
+	public float jumpForce = 1000f;  //跳跃时候的力度
 
-	private Transform groundCheck; //玩家着地位置
-	private float groundCheckVariable = 0.16f; //着地检测范围变量
-	private bool grounded = false; //是否着地
-	private Transform wallCheck;
-	private bool wallTouched = false;
-	private Animator anim; //引用角色动画
+	private Transform groundCheck;  //玩家着地检测
+	private float groundCheckVariable = 0.16f;  //着地检测范围变量
+	private bool grounded = false;  //是否着地
+	private int groundCount;
+	private Transform wallCheck;  //贴墙检测
+	private float wallCheckVariable = 0.225f;  //贴墙检测范围变量
+	private bool wallTouched = false;  //是否贴墙
+	private int wallCount;
+
 	SpriteRenderer sr;
 
-	//腿部攻击相关参数
-	private float timeSinceLastKick = 0f;
-	private bool isKickKeepPress = false;
-
-	//下蹲系列动作相关
+	//animator相关
 	private AnimatorStateInfo stateInfo;
+	private Animator anim;  //引用角色动画
 
-	//手部攻击相关参数
-	private float timeSinceLastBoxing = 0f;
-	private bool isBoxingKeepPress = false;
-
+	//连招相关参数
 	private float timeSinceLastPress = 0f;
 	private bool isKeepPress = false;
 	private int curSkill = 1;
-
-	// Use this for initialization
-	void Start () 
-	{
+	private float pressInterval = 0.4f;
 	
-	}
-
 	void Awake()
 	{
 		groundCheck = transform.Find("groundCheck");
@@ -73,12 +70,13 @@ public class PlayerController : MonoBehaviour
 		BoxCollider2D box = GetComponent<BoxCollider2D>();
 //		box.size = new Vector2 (0.3f,1);
 		sr = GetComponent<SpriteRenderer> ();
-
 	}
 	
 	// Update is called once per frame
 	void Update () 
 	{
+		groundCount = 0;
+		wallCount = 0;
 		//print ("size:"+sr.sprite.bounds.size);
 		stateInfo = anim.GetCurrentAnimatorStateInfo(0);
 		//跳
@@ -86,34 +84,53 @@ public class PlayerController : MonoBehaviour
 		{
 			groundCheck.localPosition = new Vector3(groundCheckVariable * i,groundCheck.localPosition.y,groundCheck.position.z);
 			grounded = Physics2D.Linecast(transform.position,groundCheck.position,1 << LayerMask.NameToLayer("Ground"));
-			if (grounded)
-			{
-				anim.SetBool(GroundedPrm,true);
-				print("iiiii:"+i);
-				break;
-			}
-			else if( i == 1)
-				anim.SetBool(GroundedPrm,false);
+
+			wallCheck.localPosition = new Vector3(wallCheck.localPosition.x,wallCheckVariable * i,wallCheck.localPosition.z);
+			wallTouched = Physics2D.Linecast (transform.position, wallCheck.position, 1 << LayerMask.NameToLayer ("Ground"));
+
+			if (!grounded)
+				groundCount += i + 2;
+			if (!wallTouched) 
+				wallCount += i + 2;
 		}
-		grounded = Physics2D.Linecast(transform.position,groundCheck.position,1 << LayerMask.NameToLayer("Ground"));
-		wallTouched = Physics2D.Linecast (transform.position, wallCheck.position, 1 << LayerMask.NameToLayer ("Ground"));
-		if (grounded)
-			anim.SetBool(GroundedPrm,true);
+
+		if (groundCount == 6) {
+			anim.SetBool (GroundedPrm, false);
+			grounded = false;
+		} 
 		else
-			anim.SetBool(GroundedPrm,false);
-		if (wallTouched) {
-			print("Walltrue");
-						anim.SetBool (JumpWallPrm, true);
-				}
-				else {
-						anim.SetBool (JumpWallPrm, false);
-				}
-		if (Input.GetButtonDown(JumpButton) && (grounded || (wallTouched && stateInfo.IsName("PGClimbWallEnd")))) 
 		{
-			print("jumpbutton"+ Time.time);
+			anim.SetBool (GroundedPrm, true);
+			grounded = true;
+		}
+
+		if (wallCount == 6) {
+			anim.SetBool (JumpWallPrm, false);
+			wallTouched = false;
+		} 
+		else
+		{
+			anim.SetBool (JumpWallPrm, true);
+			wallTouched = true;
+		}
+
+//		wallTouched = Physics2D.Linecast (transform.position, wallCheck.position, 1 << LayerMask.NameToLayer ("Ground"));
+//		if (wallTouched)
+//			anim.SetBool (JumpWallPrm, true);
+//		else
+//			anim.SetBool (JumpWallPrm, false);
+
+		print ("ground:" + grounded);
+		print ("wall:" + wallTouched);
+		if (Input.GetButtonDown(JumpButton) && 
+		    (grounded || (stateInfo.IsName("PGClimbWallEnd") || stateInfo.IsName ("PGClimbWall"))
+		 )
+		    ) 
+		{
+			//print("jumpbutton"+ Time.time);
 			jump = true;
 			anim.SetBool(JumpWallPrm,false);
-			print(anim.GetLayerName(0));
+			//print(anim.GetLayerName(0));
 		}
 		anim.SetFloat ("JumpWallVelocity", Mathf.Abs (rigidbody2D.velocity.x));
 		//踢腿
@@ -139,11 +156,13 @@ public class PlayerController : MonoBehaviour
 		}
 		if (anim.GetInteger (BoxingPrm) != 0)
 			anim.SetInteger (BoxingPrm, 0);
-		//挥剑//
+		//挥剑
 		if (Input.GetButtonDown (SwordButton))
 						sword = true;	
 		if (anim.GetInteger (SwordPrm) != 0)
 			anim.SetInteger (SwordPrm, 0);
+		if (anim.GetInteger (GroundedSwordPrm) != 0)
+			anim.SetInteger (GroundedSwordPrm, 0);
 		//除了跳和正常跑，其余速度降低
 //		if (getButton("PGHorizontal") && !stateInfo.IsName ("PGRun") && !stateInfo.IsName("PGJump"))
 //			maxSpeed = 0.1f;
@@ -151,7 +170,7 @@ public class PlayerController : MonoBehaviour
 //			maxSpeed = 2f;
 
 		if (stateInfo.IsName ("PGRunPunch") || stateInfo.IsName ("PGBackKick") || stateInfo.IsName ("PGBoxing") || stateInfo.IsName ("PGKeepBoxing")
-		    || stateInfo.IsName ("PGAttackKick") || stateInfo.IsName ("PGKeepKick")
+		    || stateInfo.IsName ("PGAttackKick") || stateInfo.IsName ("PGKeepKick") || stateInfo.IsTag("150") || stateInfo.IsName("PGSweep")
 		    ) 
 			maxSpeed = 0.1f;
 		else 
@@ -161,8 +180,10 @@ public class PlayerController : MonoBehaviour
 		float h = Input.GetAxis (HorizontalButton);
 		anim.SetFloat (SpeedPrm, Mathf.Abs (h));
 
-		if (h * rigidbody2D.velocity.x < maxSpeed)
-			rigidbody2D.AddForce (Vector2.right * h * moveForce);
+		if (grounded || stateInfo.IsName ("PGClimbWallEnd") || stateInfo.IsName ("PGClimbWall") || (!grounded && !wallTouched)) {
+						if (h * rigidbody2D.velocity.x < maxSpeed)
+								rigidbody2D.AddForce (Vector2.right * h * moveForce);
+				}
 		if (Mathf.Abs (rigidbody2D.velocity.x) > maxSpeed)
 			rigidbody2D.velocity = new Vector2 (Mathf.Sign (rigidbody2D.velocity.x) * maxSpeed, rigidbody2D.velocity.y);
 		if (h > 0 && !facingRight)
@@ -183,22 +204,23 @@ public class PlayerController : MonoBehaviour
 		}
 		if (kick)
 		{	
-			timeSinceLastKick = Time.time - timeSinceLastKick;
-			Debug.Log("okok:"+timeSinceLastKick);
-			if (timeSinceLastKick < 0.5 && timeSinceLastKick > 0)
-			{
-				isKickKeepPress = true;
-			}
-			if (isKickKeepPress)
-			{
-				anim.SetInteger(KickPrm,2);
-				isKickKeepPress = false;
-			}
-			else
-			{
-				anim.SetInteger(KickPrm,1);
-			}
-			timeSinceLastKick = Time.time;
+//			timeSinceLastKick = Time.time - timeSinceLastKick;
+//			Debug.Log("okok:"+timeSinceLastKick);
+//			if (timeSinceLastKick < 0.5 && timeSinceLastKick > 0)
+//			{
+//				isKickKeepPress = true;
+//			}
+//			if (isKickKeepPress)
+//			{
+//				anim.SetInteger(KickPrm,2);
+//				isKickKeepPress = false;
+//			}
+//			else
+//			{
+//				anim.SetInteger(KickPrm,1);
+//			}
+//			timeSinceLastKick = Time.time;
+			isKeepPressing(KickPrm,2);
 			kick = false;
 		}
 		if (sit) 
@@ -216,7 +238,10 @@ public class PlayerController : MonoBehaviour
 		}
 		if (sword)
 		{
-			isKeepPressing(SwordPrm,2);
+			if (!sit)
+				isKeepPressing(SwordPrm,6);
+			else
+				isKeepPressing(GroundedSwordPrm,2);
 			sword = false;
 		}
 	}
@@ -224,17 +249,28 @@ public class PlayerController : MonoBehaviour
 	void isKeepPressing(string animName,int skillCount)
 	{
 		timeSinceLastPress = Time.time - timeSinceLastPress;
-		if (timeSinceLastPress < 0.5 && timeSinceLastPress > 0)
+		if (timeSinceLastPress < pressInterval && timeSinceLastPress > 0)
 		{
 			isKeepPress = true;
 		}
 		if (isKeepPress)
 		{
-			if(curSkill < skillCount)
+			if (stateInfo.normalizedTime > 0.9 && !stateInfo.IsName("PGIdle"))
+			{
+			if (curSkill < skillCount)
 				curSkill++;
 			else
 				curSkill = 1;
 			anim.SetInteger(animName,curSkill);
+			}
+			else if (stateInfo.IsName("PGIdle"))
+			{
+				if (curSkill < skillCount)
+					curSkill++;
+				else
+					curSkill = 1;
+				anim.SetInteger(animName,curSkill);
+			}
 			isKeepPress = false;
 		}
 		else
