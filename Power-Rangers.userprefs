@@ -1,19 +1,12 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\PlayerController.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Boss.cs">
     <Files>
-      <File FileName="..\..\2D Platformer\Assets\Scripts\Score.cs" Line="1" Column="1" />
-      <File FileName="..\..\2D Platformer\Assets\Scripts\PlayerControl.cs" Line="1" Column="1" />
-      <File FileName="..\..\2D Platformer\Assets\Scripts\Gun.cs" Line="1" Column="1" />
-      <File FileName="..\..\2D Platformer\Assets\Scripts\Destroyer.cs" Line="1" Column="1" />
-      <File FileName="..\..\2D Platformer\Assets\Scripts\Remover.cs" Line="1" Column="1" />
-      <File FileName="..\..\2D Platformer\Assets\Scripts\SetParticleSortingLayer.cs" Line="1" Column="1" />
-      <File FileName="..\..\2D Platformer\Assets\Scripts\ScoreShadow.cs" Line="1" Column="1" />
-      <File FileName="..\..\2D Platformer\Assets\Scripts\PlayerHealth.cs" Line="1" Column="1" />
-      <File FileName="..\..\2D Platformer\Assets\Scripts\Enemy.cs" Line="1" Column="1" />
-      <File FileName="..\..\2D Platformer\Assets\Scripts\Rocket.cs" Line="1" Column="1" />
-      <File FileName="..\..\2D Platformer\Assets\Scripts\Spawner.cs" Line="6" Column="73" />
-      <File FileName="Assets\Scripts\PlayerController.cs" Line="117" Column="31" />
+      <File FileName="Assets\Scripts\PlayerController.cs" Line="291" Column="35" />
+      <File FileName="Assets\Scripts\Boss.cs" Line="40" Column="6" />
+      <File FileName="Assets\Scripts\CameraFollow.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\ScreenReltaivePosition.cs" Line="6" Column="49" />
+      <File FileName="..\..\2D Platformer\Assets\Scripts\PickupSpawner.cs" Line="27" Column="35" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

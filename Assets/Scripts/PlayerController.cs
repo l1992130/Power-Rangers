@@ -120,8 +120,8 @@ public class PlayerController : MonoBehaviour
 //		else
 //			anim.SetBool (JumpWallPrm, false);
 
-		print ("ground:" + grounded);
-		print ("wall:" + wallTouched);
+//		print ("ground:" + grounded);
+//		print ("wall:" + wallTouched);
 		if (Input.GetButtonDown(JumpButton) && 
 		    (grounded || (stateInfo.IsName("PGClimbWallEnd") || stateInfo.IsName ("PGClimbWall"))
 		 )
