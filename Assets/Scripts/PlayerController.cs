@@ -190,6 +190,15 @@ public class PlayerController : MonoBehaviour
 			Flip ();
 		else if (h < 0 && facingRight)
 			Flip ();
+		BoxCollider2D bc = GetComponent<BoxCollider2D>();
+		if(grounded || wallTouched)
+		{
+
+			bc.isTrigger = false;
+		}
+		else
+			bc.isTrigger = true;
+
 	}
 
 	void FixedUpdate()
@@ -200,6 +209,8 @@ public class PlayerController : MonoBehaviour
 			anim.SetTrigger(JumpPrm);
 			//			anim.Play("PGRedAttackKick");
 			rigidbody2D.AddForce(new Vector2(0f,jumpForce));
+			if (rigidbody2D.velocity.y >0.3)
+				rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x,0.3f);
 			jump = false;
 		}
 		if (kick)

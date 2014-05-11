@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class Boss : MonoBehaviour 
@@ -9,7 +9,7 @@ public class Boss : MonoBehaviour
 	public float shockWaveDistance = 3f;
 	public float impactDistance = 1.5f;
 	public float maxSpeed = 1f;
-	public float changeProbability = 75f;
+	public float changeProbability = 50f;
 	public bool facingRight;
 	public BossState bossState;
 
@@ -33,18 +33,22 @@ public class Boss : MonoBehaviour
 	// Update is called once per frame
 	void Update () 
 	{
-		if (!anim.GetBool ("Walk"))
-						print ("walkfalse");
+		print("bossState:"+bossState);
+//		if (!anim.GetBool ("Walk"))
+//						print ("walkfalse");
 		stateInfo = anim.GetCurrentAnimatorStateInfo(0);
 		facingRight = Mathf.Sign (player.transform.position.x - transform.position.x) > 0 ? true : false;
 		Flip (facingRight);
 
 		float dist = Vector3.Distance (player.transform.position, transform.position);
-		print ("distance:"+dist);
+		//print ("distance:"+dist);
 		if (dist < minDistance) 
 		{
-			if (bossState == BossState.IDLE || (bossState != BossState.SHOCKWAVE && bossState != BossState.IMPACT))
-				anim.SetBool("Walk",true);
+//			if (bossState == BossState.IDLE || (bossState != BossState.SHOCKWAVE && bossState != BossState.IMPACT))
+//			{
+//				print("walkTrue");
+//				anim.SetBool("Walk",true);
+//			}
 			//print("enterMinDistance");
 			if (dist > shockWaveDistance)
 			{
@@ -52,7 +56,7 @@ public class Boss : MonoBehaviour
 			}
 			else if (dist > impactDistance)
 			{
-				impact(1);
+				impact(1.2f);
 			}
 			else
 			{
@@ -68,27 +72,31 @@ public class Boss : MonoBehaviour
 		switch (bossState)
 		{
 		case BossState.WALK :
+			if (!anim.GetBool ("Walk"))
 			anim.SetBool ("Walk", true);
 			rigidbody2D.AddForce (new Vector2 (addForce * Mathf.Sign (player.transform.position.x - transform.position.x), 0));
 			if (Mathf.Abs (rigidbody2D.velocity.x) > maxSpeed)				
 				rigidbody2D.velocity = new Vector2 (Mathf.Sign (rigidbody2D.velocity.x) * maxSpeed, rigidbody2D.velocity.y);
-			//print("walk:"+rigidbody2D.velocity.x+"force:"+Mathf.Sign (player.transform.position.x - transform.position.x));
+			print("walk:"+rigidbody2D.velocity.x+"force:"+Mathf.Sign (player.transform.position.x - transform.position.x));
 			break;
 		case BossState.SHOCKWAVE :
 			//print("shockwave");
 			if (anim.GetBool("Walk"))
 				anim.SetBool ("Walk", false);
 			anim.SetTrigger ("ShockWave");
+
 			break;
 		case BossState.IMPACT :
 			//print("impact");
 			if (anim.GetBool("Walk"))
 				anim.SetBool ("Walk", false);
 			anim.SetTrigger ("Impact");
+
 			break;
 		case BossState.IDLE :
 			//print("idle");
 			anim.SetBool("Walk",false);
+			anim.SetTrigger("Idle");
 			break;
 		}
 	}
@@ -96,7 +104,7 @@ public class Boss : MonoBehaviour
 	void shockWave(float waitTime) 
 	{
 		timeSinceLastShockWave += Time.deltaTime;
-		if (timeSinceLastShockWave > waitTime)
+		if (timeSinceLastShockWave >= waitTime)
 		{
 			print("time:"+timeSinceLastShockWave);
 			float random =  Random.Range(1,100);
@@ -107,20 +115,25 @@ public class Boss : MonoBehaviour
 			timeSinceLastShockWave = 0;
 		}
 	}
-
 	void impact (float waitTime)
 	{
-//		timeSinceLastShockWave += Time.deltaTime;
-//		if (timeSinceLastShockWave > waitTime)
-//		{
-//			print("time:"+timeSinceLastShockWave);
-//			float random =  Random.Range(1,100);
-//			if (random > changeProbability)
-//				bossState = BossState.SHOCKWAVE;
+		timeSinceLastShockWave += Time.deltaTime;
+		if (timeSinceLastShockWave >= waitTime)
+		{
+			if (stateInfo.IsName ("GlutoImpactEnd"))
+				return;
+			print("time:"+timeSinceLastShockWave);
+			float random =  Random.Range(1,100);
+			if (random > changeProbability)
+				bossState = BossState.IMPACT;
+			else
+				bossState = BossState.WALK;
+//			if (stateInfo.IsName("GlutoWalk"))
+//			bossState = BossState.IMPACT;
 //			else
 //				bossState = BossState.WALK;
-//			timeSinceLastShockWave = 0;
-//		}
+			timeSinceLastShockWave = 0;
+		}
 	}
 
 	void Flip(bool faceRight)
