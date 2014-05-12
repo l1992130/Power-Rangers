@@ -4,16 +4,16 @@ using System.Collections;
 public class Boss : MonoBehaviour 
 {
 	public enum BossState {IDLE,WALK,JUMP,ATTACK,HURT,DIE,SHOCKWAVE,IMPACT,FAINT};
-	public float addForce = 25;
+	public float addForce = 40;
 	public float minDistance = 5f;
-	public float shockWaveDistance = 3f;
+	public float shockWaveDistance = 2.5f;
 	public float impactDistance = 1.5f;
-	public float maxSpeed = 1f;
+	public float maxSpeed = 0.5f;
 	public float shockwaveProbability = 50f;
-	public float impactProbability = 60f;
-	public float attackProbability = 60f;
-	public float hurtProbability = 70f;
-	public float FaintProbability = 85f;
+	public float impactProbability = 70f;
+	public float attackProbability = 50f;
+	public float hurtProbability = 50f;
+	public float FaintProbability = 75f;
 	public bool facingRight;
 	public BossState bossState;
 
@@ -33,7 +33,7 @@ public class Boss : MonoBehaviour
 
 	void Awake ()
 	{
-		player = GameObject.FindGameObjectWithTag ("player").transform;
+		player = GameObject.FindGameObjectWithTag("p1").GetComponent<Transform>();
 //		PlayerController player1 = GameObject.FindGameObjectWithTag ("player").GetComponent<PlayerController> ();
 //		print (player1.HP);
 		anim = GetComponent<Animator>();
@@ -43,6 +43,7 @@ public class Boss : MonoBehaviour
 	// Update is called once per frame
 	void Update () 
 	{
+		//print("pos:"+player.transform.localPosition);
 		//print("bossState:"+bossState);
 //		if (!anim.GetBool ("Walk"))
 //						print ("walkfalse");
@@ -51,7 +52,7 @@ public class Boss : MonoBehaviour
 		Flip (facingRight);
 
 		float dist = Vector3.Distance (player.transform.position, transform.position);
-		print ("distance:"+dist);
+		//print ("distance:"+dist);
 		if (dist < minDistance) 
 		{
 //			if (bossState == BossState.IDLE || (bossState != BossState.SHOCKWAVE && bossState != BossState.IMPACT))
