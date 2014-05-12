@@ -40,6 +40,7 @@ public class PlayerController : MonoBehaviour
 	public float maxSpeed = 2f;  //最大移动速度
 	public AudioClip[] jumpClips;  //跳跃时候的声音
 	public float jumpForce = 1000f;  //跳跃时候的力度
+	public int HP = 1000;
 
 	private Transform groundCheck;  //玩家着地检测
 	private float groundCheckVariable = 0.16f;  //着地检测范围变量
@@ -49,6 +50,7 @@ public class PlayerController : MonoBehaviour
 	private float wallCheckVariable = 0.225f;  //贴墙检测范围变量
 	private bool wallTouched = false;  //是否贴墙
 	private int wallCount;
+
 
 	SpriteRenderer sr;
 
