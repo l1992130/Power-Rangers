@@ -40,8 +40,7 @@ public class PlayerController : MonoBehaviour
 	public float maxSpeed = 2f;  //最大移动速度
 	public AudioClip[] jumpClips;  //跳跃时候的声音
 	public float jumpForce = 1000f;  //跳跃时候的力度
-	public int HP = 1000;
-	public enum PlayerState {ATTACK,NOTATTACK};
+	public enum PlayerState {ATTACK,NOTATTACK,DIE,NEEDBLOOD};
 	public PlayerState playerState;
 
 	private Transform groundCheck;  //玩家着地检测
@@ -176,11 +175,11 @@ public class PlayerController : MonoBehaviour
 
 		if (stateInfo.IsName ("PGRunPunch") || stateInfo.IsName ("PGBackKick") || stateInfo.IsName ("PGBoxing") || stateInfo.IsName ("PGKeepBoxing") || stateInfo.IsName("PGSword")
 		    || stateInfo.IsName ("PGAttackKick") || stateInfo.IsName ("PGKeepKick") || stateInfo.IsTag("150") || stateInfo.IsName("PGSweep") || stateInfo.IsName("PGPunch")
-		    || stateInfo.IsName ("PGKeepSweepSword") || stateInfo.IsName("PGJumpHeaven") 
+		    || stateInfo.IsName ("PGKeepSweepSword") || stateInfo.IsName("PGJumpHeaven") || stateInfo.IsName("PGSit2")
 		    ) 
 		{
 			playerState = PlayerState.ATTACK;
-			maxSpeed = 0.1f;
+			maxSpeed = 0.05f;
 		}
 		else 
 		{

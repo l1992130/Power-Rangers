@@ -229,7 +229,8 @@ public class Boss : MonoBehaviour
 
 	void impactAction ()
 	{
-		rigidbody2D.AddForce (new Vector2 (1000 * Mathf.Sign (player.transform.position.x - transform.position.x), 0));
+		print("impact");
+		rigidbody2D.AddForce (new Vector2 (2000 * Mathf.Sign (player.transform.position.x - transform.position.x), 0));
 	}
 
 	void shockWaveAction ()
