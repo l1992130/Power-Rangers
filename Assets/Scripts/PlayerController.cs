@@ -41,6 +41,8 @@ public class PlayerController : MonoBehaviour
 	public AudioClip[] jumpClips;  //跳跃时候的声音
 	public float jumpForce = 1000f;  //跳跃时候的力度
 	public int HP = 1000;
+	public enum PlayerState {ATTACK,NOTATTACK};
+	public PlayerState playerState;
 
 	private Transform groundCheck;  //玩家着地检测
 	private float groundCheckVariable = 0.16f;  //着地检测范围变量
@@ -72,6 +74,7 @@ public class PlayerController : MonoBehaviour
 		BoxCollider2D box = GetComponent<BoxCollider2D>();
 //		box.size = new Vector2 (0.3f,1);
 		sr = GetComponent<SpriteRenderer> ();
+		playerState = PlayerState.NOTATTACK;
 	}
 	
 	// Update is called once per frame
@@ -171,12 +174,19 @@ public class PlayerController : MonoBehaviour
 //		if (stateInfo.IsName("PGRun"))
 //			maxSpeed = 2f;
 
-		if (stateInfo.IsName ("PGRunPunch") || stateInfo.IsName ("PGBackKick") || stateInfo.IsName ("PGBoxing") || stateInfo.IsName ("PGKeepBoxing")
-		    || stateInfo.IsName ("PGAttackKick") || stateInfo.IsName ("PGKeepKick") || stateInfo.IsTag("150") || stateInfo.IsName("PGSweep")
+		if (stateInfo.IsName ("PGRunPunch") || stateInfo.IsName ("PGBackKick") || stateInfo.IsName ("PGBoxing") || stateInfo.IsName ("PGKeepBoxing") || stateInfo.IsName("PGSword")
+		    || stateInfo.IsName ("PGAttackKick") || stateInfo.IsName ("PGKeepKick") || stateInfo.IsTag("150") || stateInfo.IsName("PGSweep") || stateInfo.IsName("PGPunch")
+		    || stateInfo.IsName ("PGKeepSweepSword") || stateInfo.IsName("PGJumpHeaven") 
 		    ) 
+		{
+			playerState = PlayerState.ATTACK;
 			maxSpeed = 0.1f;
+		}
 		else 
+		{
+			playerState = PlayerState.NOTATTACK;
 			maxSpeed = 2f;
+		}
 
 		//左右跑动
 		float h = Input.GetAxis (HorizontalButton);

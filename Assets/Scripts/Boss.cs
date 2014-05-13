@@ -4,10 +4,10 @@ using System.Collections;
 public class Boss : MonoBehaviour 
 {
 	public enum BossState {IDLE,WALK,JUMP,ATTACK,HURT,DIE,SHOCKWAVE,IMPACT,FAINT};
-	public float addForce = 40;
+	public float addForce = 80;
 	public float minDistance = 5f;
 	public float shockWaveDistance = 2.5f;
-	public float impactDistance = 1.5f;
+	public float impactDistance = 0.8f;
 	public float maxSpeed = 0.5f;
 	public float shockwaveProbability = 50f;
 	public float impactProbability = 70f;
@@ -16,8 +16,11 @@ public class Boss : MonoBehaviour
 	public float FaintProbability = 75f;
 	public bool facingRight;
 	public BossState bossState;
+	public float angryFactor = 1f;
+	public GameObject bullet;
 
 	private Transform player;
+	private PlayerController playerController;
 	private Animator anim;
 	private AnimatorStateInfo stateInfo;
 	private float timeSinceLastShockWave = 0f;
@@ -25,6 +28,9 @@ public class Boss : MonoBehaviour
 	private float timeSinceLastAttack = 0f;
 	private float timeSinceLastHurt = 0f;
 	private float timeSinceLastAction = 0f;
+	private int oldHP = 2000;
+	private EnemyHP enemyHP;
+
 	// Use this for initialization
 	void Start () 
 	{
@@ -33,8 +39,9 @@ public class Boss : MonoBehaviour
 
 	void Awake ()
 	{
+		enemyHP = GetComponent<EnemyHP> ();
 		player = GameObject.FindGameObjectWithTag("p1").GetComponent<Transform>();
-//		PlayerController player1 = GameObject.FindGameObjectWithTag ("player").GetComponent<PlayerController> ();
+		playerController = GameObject.FindGameObjectWithTag ("p1").GetComponent<PlayerController> ();
 //		print (player1.HP);
 		anim = GetComponent<Animator>();
 		bossState = BossState.IDLE;
@@ -43,6 +50,7 @@ public class Boss : MonoBehaviour
 	// Update is called once per frame
 	void Update () 
 	{
+
 		//print("pos:"+player.transform.localPosition);
 		//print("bossState:"+bossState);
 //		if (!anim.GetBool ("Walk"))
@@ -63,16 +71,16 @@ public class Boss : MonoBehaviour
 //			print("enterMinDistance");
 			if (dist > shockWaveDistance)
 			{
-				shockWave(1);
+				shockWave(1 * angryFactor);
 			}
 			else if (dist > impactDistance)
 			{
-				impact(1.2f);
+				impact(1.2f * angryFactor);
 			}
 			else
 			{
 				//print("attack");
-				attack(1f);
+				attack(1f * angryFactor);
 			}
 
 		}
@@ -80,6 +88,9 @@ public class Boss : MonoBehaviour
 		{
 			bossState = BossState.IDLE;
 		}
+		if (oldHP - enemyHP.HP > 100)
+			bossState = BossState.FAINT;
+		oldHP = enemyHP.HP;
 		SWITCH (bossState);
 	}
 
@@ -90,10 +101,10 @@ public class Boss : MonoBehaviour
 		case BossState.WALK :
 			if (!anim.GetBool ("Walk"))
 				anim.SetBool ("Walk", true);
-			//			rigidbody2D.AddForce (new Vector2 (addForce * Mathf.Sign (player.transform.position.x - transform.position.x), 0));
-			//			if (Mathf.Abs (rigidbody2D.velocity.x) > maxSpeed)				
-			//				rigidbody2D.velocity = new Vector2 (Mathf.Sign (rigidbody2D.velocity.x) * maxSpeed, rigidbody2D.velocity.y);
-			//			print("walk:"+rigidbody2D.velocity.x+"force:"+Mathf.Sign (player.transform.position.x - transform.position.x));
+						rigidbody2D.AddForce (new Vector2 (addForce * Mathf.Sign (player.transform.position.x - transform.position.x), 0));
+						if (Mathf.Abs (rigidbody2D.velocity.x) > maxSpeed)				
+							rigidbody2D.velocity = new Vector2 (Mathf.Sign (rigidbody2D.velocity.x) * maxSpeed, rigidbody2D.velocity.y);
+						//print("walk:"+rigidbody2D.velocity.x+"force:"+Mathf.Sign (player.transform.position.x - transform.position.x));
 			break;
 		case BossState.SHOCKWAVE :
 			//print("shockwave");
@@ -145,10 +156,10 @@ public class Boss : MonoBehaviour
 	void OnCollisionEnter2D(Collision2D coll) 
 	{
 		timeSinceLastHurt = Time.time - timeSinceLastHurt;
-		if (coll.gameObject.tag == "player" )
+		if (coll.gameObject.tag == "p1" && playerController.playerState == PlayerController.PlayerState.ATTACK)
 		{
 			timeSinceLastHurt += Time.deltaTime;
-			if (timeSinceLastHurt > 2f)
+			if (timeSinceLastHurt > 1.5f)
 			{
 				float random =  Random.Range(1,100);
 				//print ("random:"+random);
@@ -214,6 +225,29 @@ public class Boss : MonoBehaviour
 				bossState = BossState.WALK;
 			timeSinceLastAttack = 0;
 		}
+	}
+
+	void impactAction ()
+	{
+		rigidbody2D.AddForce (new Vector2 (1000 * Mathf.Sign (player.transform.position.x - transform.position.x), 0));
+	}
+
+	void shockWaveAction ()
+	{
+		Vector3 bulletPos = transform.position;
+		if (facingRight)
+		{
+			bulletPos.x += 0.295f;
+			bulletPos.y += 0.035f;
+		}
+		else
+		{
+			bulletPos.x -= 0.295f;
+			bulletPos.y -= 0.035f;
+		}
+		GameObject gm =  Instantiate(bullet, bulletPos, Quaternion.identity) as GameObject;
+		print (Mathf.Sign(player.transform.position.x - transform.position.x));
+		gm.GetComponent<Rigidbody2D> ().velocity = new Vector2 (4 * Mathf.Sign(player.transform.position.x - transform.position.x),0);
 	}
 
 	void Flip(bool faceRight)

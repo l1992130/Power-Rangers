@@ -2,6 +2,7 @@
 using System.Collections;
 
 public class PlayerAttack : MonoBehaviour {
+	public bool isAttackEnable = true;
 
 	private string colliderObject;
 	private AnimatorStateInfo stateInfo;
@@ -16,11 +17,13 @@ public class PlayerAttack : MonoBehaviour {
 	}
 	void isPlayerAttack (int attackCount)
 	{
-
+		if (!isAttackEnable)
+			return;
 		if (colliderObject == "Untagged" || colliderObject == "") 
 			return;
-		print (colliderObject);
-		EnemyHP enemyHP = GameObject.FindGameObjectWithTag (colliderObject).GetComponent<EnemyHP> ();
+		//print (colliderObject);
+		EnemyHP enemyHP = GameObject.FindGameObjectWithTag ("Gluto").GetComponent<EnemyHP> ();
+		//print (enemyHP.HP);
 //		AnimatorStateInfo playerAnimState = GameObject.FindGameObjectWithTag ("player").GetComponent<Animator> ().GetCurrentAnimatorStateInfo (0);
 		if(stateInfo.IsName("PGAttackKick") || stateInfo.IsName("PGBoxing"))
 			enemyHP.HP -= Random.Range (20, 40) - enemyHP.Armour;
